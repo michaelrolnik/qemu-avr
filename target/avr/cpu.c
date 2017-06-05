@@ -88,7 +88,13 @@ static void avr_cpu_realizefn(DeviceState *dev, Error **errp)
 {
     CPUState *cs = CPU(dev);
     AVRCPUClass *mcc = AVR_CPU_GET_CLASS(dev);
+    Error *local_err = NULL;
 
+    cpu_exec_realizefn(cs, &local_err);
+    if (local_err != NULL) {
+        error_propagate(errp, local_err);
+        return;
+    }
     qemu_init_vcpu(cs);
     cpu_reset(cs);
 
@@ -117,17 +123,14 @@ static void avr_cpu_initfn(Object *obj)
 {
     CPUState *cs = CPU(obj);
     AVRCPU *cpu = AVR_CPU(obj);
-    static int inited;
 
     cs->env_ptr = &cpu->env;
-    cpu_exec_initfn(cs);
 
 #ifndef CONFIG_USER_ONLY
     qdev_init_gpio_in(DEVICE(cpu), avr_cpu_set_int, 37);
 #endif
 
-    if (tcg_enabled() && !inited) {
-        inited = 1;
+    if (tcg_enabled()) {
         avr_translate_init();
     }
 }
@@ -579,7 +582,7 @@ static const TypeInfo avr_cpu_type_info = {
     .instance_init = avr_cpu_initfn,
     .class_size = sizeof(AVRCPUClass),
     .class_init = avr_cpu_class_init,
-    .abstract = true,
+    .abstract = false,
 };
 
 static void avr_cpu_register_types(void)

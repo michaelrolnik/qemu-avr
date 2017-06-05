@@ -2851,6 +2851,7 @@ void gen_intermediate_code(CPUAVRState *env, struct TranslationBlock *tb)
             gen_goto_tb(&ctx, 0, npc);
             break;
         case BS_EXCP:
+        case BS_BRANCH:
             tcg_gen_exit_tb(0);
             break;
         default:

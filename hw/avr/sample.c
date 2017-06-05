@@ -93,12 +93,9 @@ static void sample_init(MachineState *machine)
     }
 
     filename = qemu_find_file(QEMU_FILE_TYPE_BIOS, firmware);
-    if (!filename) {
-        error_report("Could not find flash image file '%s'", firmware);
-        exit(1);
+    if (filename) {
+        load_image_targphys(filename, PHYS_BASE_FLASH, SIZE_FLASH);
     }
-
-    load_image_targphys(filename, PHYS_BASE_FLASH, SIZE_FLASH);
 }
 
 static void sample_machine_init(MachineClass *mc)
